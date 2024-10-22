@@ -152,6 +152,7 @@ class PolygonDrawer:
         # Handle double-click to clear points and lines
         if event.dblclick:
             self.clear_polygon() # when double click delete the drawn polygon
+            return # need this to get out of this function after clearing the polygon
 
         # Handle left-click to add points
         if event.button == 1:  # Left-click
@@ -205,27 +206,63 @@ class PolygonDrawer:
         plt.draw()  # Redraw the plot
 
     def finish_polygon(self):
-        """Finish the polygon by connecting the first and last points."""
-        if len(self.polygon_points) < 3:
+        """
+        Finish the polygon by connecting the first and last points.
+
+        Parameters
+        ----------
+        N/A
+
+        Returns
+        -------
+        N/A
+
+        Sources:
+        --------
+        N/A
+
+        Examples
+        --------
+        N/A
+        """
+        if len(self.polygon_points) < 3: # Check if there is enough points to create a polygon
             print("Need at least 3 points to form a polygon.")
             return
 
-        # Close the polygon by connecting the first and last points
-        self.polygon_points.append(self.polygon_points[0])
+        self.polygon_points.append(self.polygon_points[0]) # Close the polygon by connecting the first and last points
         
         # Plot the polygon line
-        line = self.ax.plot(*zip(*self.polygon_points), 'g-')  # Draw polygon line
+        # !!! the lines are created based on the points order placement
+        line = self.ax.plot(*zip(*self.polygon_points), 'g-')  # Draw polygon line 
         self.drawn_elements.append(line[0])  # Save reference to the line
 
         plt.draw()  # Redraw the plot
-        print("Polygon finished.")
-        self.all_polygons.append(self.get_polygon_points())
+        print("Polygon finished.") 
+        # get all points of polygon (further can be used for post processing)
+        self.all_polygons.append(self.get_polygon_points()) 
 
     def clear_polygon(self):
-        print('Hi')
-        """Clear all drawn points and lines."""
-        for elem in self.drawn_elements:
-            elem.remove()  # Remove points and lines
+        """
+        Clear all drawn points and lines.
+        
+        Parameters
+        ----------
+        N/A
+
+        Returns
+        -------
+        N/A
+
+        Sources:
+        --------
+        N/A
+
+        Examples
+        --------
+        N/A
+        """
+        for elem in self.drawn_elements: # Iterate over all previously saved elements
+            elem.remove()  # Remove elements (points and lines)
         self.drawn_elements.clear()  # Clear the list of drawn elements
         self.polygon_points.clear()  # Clear the list of polygon points
 
@@ -233,5 +270,23 @@ class PolygonDrawer:
         print("Polygon cleared.")
 
     def get_polygon_points(self):
-        """Get the points of the drawn polygon as a NumPy array."""
+        """
+        Get the points of the drawn polygon as a NumPy array.
+        
+        Parameters
+        ----------
+        N/A (inside uses the polygon points)
+
+        Returns
+        -------
+        All extracted polygon points
+
+        Sources:
+        --------
+        N/A
+
+        Examples
+        --------
+        N/A
+        """
         return np.array(self.polygon_points) if self.polygon_points else None
