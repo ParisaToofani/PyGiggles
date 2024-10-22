@@ -1,0 +1,1 @@
+PyGiggles is a collection of simple yet useful Python codes aimed at helping developers solve common tasks efficiently. The focus is on practical, example-based solutions that are easy to understand and reuse.
