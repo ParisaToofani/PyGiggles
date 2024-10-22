@@ -24,13 +24,14 @@ from shapely.geometry import Point, Polygon # Library for manipulation and analy
 #-----------------------------------------------------------------------
 class PolygonDrawer:
 
-    def __init__(self, spatial_lat, spatial_lng):
+    def __init__(self, spatial_lat, spatial_lng, poly_text = False):
         self.spatial_lat = spatial_lat # user's latitude array
         self.spatial_lng = spatial_lng # user's longitude array
         self.all_polygons = [] # storing all the polygones drawn by the user
         self.polygon_points = []  # storing polygon positions (lat/lng)
         self.drawn_elements = []  # storing the elements drawn by the users
         self.coord_text = None  # displaying polygon lat/lng real time
+        self.show_text = poly_text
         self.fig, self.ax = plt.subplots()  # create figure and axis
         self.setup_plot() # setting up the plot
 
@@ -123,9 +124,9 @@ class PolygonDrawer:
         Parameters
         ----------
         event: Type of the mouse click on the screen by the user such as:
-        1. Double click
-        2. Right click
-        3. Left click
+        1. Double click: deleting polygon
+        2. Right click: add points to create a polygone
+        3. Left click: complete polygone drawing
 
         Returns
         -------
@@ -144,37 +145,62 @@ class PolygonDrawer:
         # backend-depended window that displays the figure on screen.
         toolbar = plt.get_current_fig_manager().toolbar
         if toolbar.mode != '' and toolbar.mode in ['zoom rect', 'pan/zoom']:
+            # !!! This is necessary to be defined as not mistaken 
+            # zooming and panning click with polygone point drawing click
             return  # Ignore clicks if in zoom/pan mode
 
         # Handle double-click to clear points and lines
         if event.dblclick:
-            self.clear_polygon()
-            return
+            self.clear_polygon() # when double click delete the drawn polygon
 
         # Handle left-click to add points
         if event.button == 1:  # Left-click
-            self.add_point(event)
+            self.add_point(event) # Draw a point
 
         # Handle right-click to finish polygon
         elif event.button == 3:  # Right-click to finish
-            self.finish_polygon()
+            self.finish_polygon() # Finish the polygon 
 
     def add_point(self, event):
-        """Add a point to the polygon."""
+        """
+        Drawing points on the click event to create a polygon
+
+        Parameters
+        ----------
+        event: Type of the mouse click on the screen by the user such as:
+        1. Double click: deleting polygon
+        2. Right click: add points to create a polygone
+        3. Left click: complete polygone drawing
+
+        Returns
+        -------
+        Actions based on the click type
+
+        Sources:
+        --------
+        N/A
+
+        Examples
+        --------
+        N/A
+        """
         # Append the lat/lng coordinates
-        self.polygon_points.append([event.xdata, event.ydata])  # Store point
+        # here event.xdata and .ydata return to point coordinates 
+        # (for instance latitude and longitude)
+        self.polygon_points.append([event.xdata, event.ydata])  # Store point used for creating polygon
         
-        # Plot the point on the graph
-        point = self.ax.plot(event.xdata, event.ydata, 'ro')
-        self.drawn_elements.append(point[0])  # Save reference to the point
+        point = self.ax.plot(event.xdata, event.ydata, 'ro') # Plot the point on the graph
+        self.drawn_elements.append(point[0])  # Save reference to the point, plotting elements
 
         # Update and display the coordinates
         if self.coord_text:
             self.coord_text.remove()  # Remove previous coordinate text
 
-        # self.coord_text = self.ax.text(event.xdata, event.ydata, f'({event.xdata:.4f}, {event.ydata:.4f})',
-        #                                fontsize=9, color='blue')
-        # self.drawn_elements.append(self.coord_text)  # Save reference to the coordinate text
+        if self.show_text: # make based on user decision to if shows the point coordinate real time or not
+            self.coord_text = self.ax.text(event.xdata, event.ydata, 
+                                           f'({event.xdata:.4f}, {event.ydata:.4f})',
+                                           fontsize=9, color='blue')
+            self.drawn_elements.append(self.coord_text)  # Save reference to the coordinate text
 
         plt.draw()  # Redraw the plot
 
